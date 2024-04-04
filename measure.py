@@ -14,8 +14,21 @@ if not DATA.exists():
 
     DATA.write_text(json.dumps(make_filesystem_data(1_000)))
 
+results = []
+
 for version_dir in VERSIONS:
     version = version_dir.name
     venv_dir = version_dir / ".venv"
     print(f"Measuring version {version}")
-    subprocess.run([venv_dir / "bin" / "python", THIS_DIR / "sample.py"])
+    result = json.loads(
+        subprocess.check_output([venv_dir / "bin" / "python", THIS_DIR / "sample.py"])
+    )
+    results.append(result)
+
+print("version,validate,validate_json,nested_filesystem")
+for result in results:
+    version = result["version"]
+    validate = result["validate"]
+    validate_json = result["validate_json"]
+    nested_filesystem = result["nested_filesystem"]
+    print(f"{version},{validate:.2f},{validate_json:.2f},{nested_filesystem:.2f}")
